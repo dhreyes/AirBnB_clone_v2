@@ -121,63 +121,27 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        params = args.split(" ")
-        c_name = params[0]
-        if not params[0]:
+        new_dict = {}
+        args_list = args.split(' ')
+        for idx, string in enumerate(args_list):
+            if idx >= 1:
+                params = string.split('=')
+                new_dict[params[0]] = params[1]
+        if not args:
             print("** class name missing **")
             return
-        elif c_name not in HBNBCommand.classes:
+        elif args_list[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        params.pop(0)
-        dict_kwargs = {}
-        if len(params) >= 1:
-            for element in params:
-                if '=' in element:
-                    key_val = element.split('=')
-                    if key_val[1]:
-                        if key_val[1][0] == '"' and key_val[1][-1] == '"':
-                            check_quote = key_val[1][1:-1]
-                            # check_quote = check_quote.replace('"', '\"')
-                            check_quote = check_quote.replace('_', ' ')
-                        elif '.' in key_val[1]:
-                            nums = key_val[1].split('.')
-                            is_neg = False
-                            if nums[0][0] == "-":
-                                is_neg = True
-                                nums[0] = nums[0].replace('-', '')
-                            if nums[0].isnumeric() is True:
-                                if nums[1].isnumeric() is True:
-                                    check_quote = nums[0] + '.' + nums[1]
-                                    if is_neg is True:
-                                        check_quote = '-' + nums[0] + \
-                                                      '.' + nums[1]
-                                    else:
-                                        check_quote = nums[0] + '.' + nums[1]
-                                    check_quote = float(check_quote)
-                        elif key_val[1][0] == "-":
-                            if key_val[1][1:].isnumeric() is True:
-                                check_quote = int(key_val[1])
-                        elif key_val[1].isnumeric() is True:
-                            check_quote = int(key_val[1])
-                        else:
-                            continue
-                        dict_kwargs[key_val[0]] = check_quote
-                else:
-                    continue
-            new_instance = HBNBCommand.classes[c_name]()
-            for key, val in dict_kwargs.items():
-                # print("{}, {}".format(key, val))
-                setattr(new_instance, key, val)
-                storage.new(new_instance)
-            storage.save()
-            print(new_instance.id)
-            storage.save()
-        else:
-            new_instance = HBNBCommand.classes[c_name]()
-            storage.new(new_instance)
-            storage.save()
-            print(new_instance.id)
+        new_instance = HBNBCommand.classes[args_list[0]]()
+        for k, v in new_dict.items():
+            key = k
+            value = v.replace('"', '').replace('_', ' ')
+            setattr(new_instance, key, value)
+        storage.save()
+        print(new_instance.id)
+        storage.save()
+
     def help_create(self):
         """ Help information for the create method """
 
