@@ -12,6 +12,31 @@ from models.amenity import Amenity
 from models.review import Review
 
 
+def make_parameters(parameters):
+    """Change parameters to fit a dictionary"""
+    param_dict = {}
+    for pair in parameters:
+        key_value = pair.split('=')
+        if key_value[1][:1] == '"' and key_value[1][-1:] == '"':
+            key_value[1] = key_value[1].strip('"')
+            if ' ' not in key_value[1]:
+                if '_' in key_value[1]:
+                    key_value[1] = key_value[1].replace('_', ' ')
+                param_dict.update({key_value[0]: key_value[1]})
+        elif '.' in key_value[1] and key_value[1].count('.') == 1:
+            not_float = 0
+            float_check = key_value[1].split('.')                
+            for section in float_check:
+                if not section.isdigit():
+                    not_float = 1
+            if not not_float:
+                key_value[1] = float(key_value[1])
+                param_dict.update({key_value[0]: key_value[1]})            
+        else:
+            if key_value[1].isdigit():
+                key_value[1] = int(key_value[1])
+                param_dict.update({key_value[0]: key_value[1]})
+    return (param_dict)
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
 
@@ -119,28 +144,30 @@ class HBNBCommand(cmd.Cmd):
 
         pass
 
+
+   
+
+
     def do_create(self, args):
         """ Create an object of any class"""
-        new_dict = {}
-        args_list = args.split(' ')
-        for idx, string in enumerate(args_list):
-            if idx >= 1:
-                params = string.split('=')
-                new_dict[params[0]] = params[1]
-        if not args:
+        args = args.split()
+        if len(args) < 1:
             print("** class name missing **")
-            return
-        elif args_list[0] not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args_list[0]]()
-        for k, v in new_dict.items():
-            key = k
-            value = v.replace('"', '').replace('_', ' ')
-            setattr(new_instance, key, value)
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+        else:
+            if len(args) >= 1 and args[0] in HBNBCommand.classes:
+                if len(args) > 1:
+                    params = []
+                    for i in range(1, len(args)):
+                        params.append(args[i])
+                    new_params = make_parameters(params)
+                    new_obj = eval(args[0])(new_params)
+                else:
+                    new_obj = eval(args[0])()
+                print(new_obj.id)
+                new_obj.save()
+            else:
+                print("** class doesn\'t exist **")
+
 
     def help_create(self):
         """ Help information for the create method """
