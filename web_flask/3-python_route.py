@@ -7,6 +7,9 @@ Routes:
 /hbnb: display "HBNB"
 /c/<text>: display "C" followed by the value of the 
 text variable (replace underscore _ sympols with a space )
+/python/(<text>): display "Python" followed by the value of the
+text variable (replace underscore _ symbols with a space )
+The default value of text is "is cool"
 Must use the option strict_slashes=False
 """
 from flask import Flask
@@ -26,6 +29,11 @@ def hbnb():
 @app.route('/c/<text>', strict_slashes=False)
 def c(text):
     return ("C " + text.replace("_", " "))
+
+
+@app.route('/python/<text>', strict_slashes=False)
+def python(text):
+    return ("Python " + text.replace("_", " "))
 
 
 if __name__ == '__main__':
